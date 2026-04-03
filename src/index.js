@@ -148,7 +148,7 @@ async function main() {
       },
       wallet: walletAddress,
       price: config.pricePerCall,
-      source: 'https://github.com/Pi-Squared-Inc/minimum-viable-entity',
+      source: 'https://github.com/HOWTOREP/minimum-viable-entity',
     });
   });
 

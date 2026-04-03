@@ -22,7 +22,7 @@ async function fetchContent(url) {
     const res = await fetch(url, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'MinimumViableEntity/1.0 (autonomous-agent; +https://github.com/Pi-Squared-Inc/minimum-viable-entity)',
+        'User-Agent': 'MinimumViableEntity/1.0 (autonomous-agent; +https://github.com/HOWTOREP/minimum-viable-entity)',
         'Accept': 'text/html,application/xhtml+xml,text/plain,*/*',
       },
       redirect: 'follow',
