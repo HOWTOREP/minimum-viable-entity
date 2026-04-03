@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimum Viable Entity - Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 0;
+      border-bottom: 1px solid #1a1a2e;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #00ff88;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-top: 1rem;
+      letter-spacing: 1px;
+    }
+
+    .status-PROFITABLE { background: #00ff8820; color: #00ff88; border: 1px solid #00ff8840; }
+    .status-BREAK-EVEN { background: #ffaa0020; color: #ffaa00; border: 1px solid #ffaa0040; }
+    .status-UNPROFITABLE { background: #ff444420; color: #ff4444; border: 1px solid #ff444440; }
+    .status-LOADING { background: #44444420; color: #888; border: 1px solid #44444440; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #111122;
+      border: 1px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 1.2rem;
+    }
+
+    .card-label {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-top: 0.3rem;
+    }
+
+    .card-sub {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 0.2rem;
+    }
+
+    .green { color: #00ff88; }
+    .red { color: #ff4444; }
+    .yellow { color: #ffaa00; }
+    .blue { color: #4488ff; }
+    .white { color: #ffffff; }
+
+    .section-title {
+      font-size: 0.8rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    .pnl-bar {
+      background: #111122;
+      border: 1px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .bar-container {
+      height: 24px;
+      background: #1a1a2e;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin-top: 1rem;
+    }
+
+    .bar-revenue {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff88, #00cc66);
+      border-radius: 12px;
+      transition: width 0.5s ease;
+    }
+
+    .bar-cost {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #ff444460;
+      border-radius: 12px;
+      transition: width 0.5s ease;
+    }
+
+    .bar-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .calls-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .calls-table th {
+      text-align: left;
+      padding: 0.5rem;
+      color: #666;
+      border-bottom: 1px solid #1a1a2e;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .calls-table td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #0d0d1a;
+    }
+
+    .calls-table tr:hover {
+      background: #111133;
+    }
+
+    .url-cell {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #4488ff;
+    }
+
+    .wallet-info {
+      background: #111122;
+      border: 1px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .wallet-addr {
+      color: #4488ff;
+      font-family: monospace;
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      margin-right: 0.5rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0;
+      color: #333;
+      font-size: 0.75rem;
+      border-top: 1px solid #1a1a2e;
+      margin-top: 2rem;
+    }
+
+    footer a { color: #4488ff; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Minimum Viable Entity</h1>
+      <div class="subtitle">"Can an AI agent sustain itself economically?"</div>
+      <div id="status-badge" class="status-badge status-LOADING">LOADING...</div>
+    </header>
+
+    <div class="wallet-info">
+      <div>
+        <span class="live-dot"></span>
+        <span>Wallet: </span>
+        <span id="wallet-addr" class="wallet-addr">loading...</span>
+      </div>
+      <div>
+        Balance: <span id="wallet-balance" class="green">--</span> USDC
+      </div>
+      <div>
+        Uptime: <span id="uptime">--</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-label">Total Calls</div>
+        <div class="card-value white" id="total-calls">0</div>
+        <div class="card-sub" id="avg-per-hour">0/hour</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Revenue</div>
+        <div class="card-value green" id="total-revenue">$0.00</div>
+        <div class="card-sub" id="avg-revenue">$0.00/call</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Costs</div>
+        <div class="card-value red" id="total-costs">$0.00</div>
+        <div class="card-sub" id="avg-cost">$0.00/call</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Profit</div>
+        <div class="card-value green" id="total-profit">$0.00</div>
+        <div class="card-sub" id="margin">0% margin</div>
+      </div>
+    </div>
+
+    <div class="pnl-bar">
+      <div class="section-title">Revenue vs Costs</div>
+      <div class="bar-container">
+        <div class="bar-revenue" id="bar-revenue" style="width: 0%"></div>
+        <div class="bar-cost" id="bar-cost" style="width: 0%"></div>
+      </div>
+      <div class="bar-labels">
+        <span class="green">Revenue: <span id="bar-revenue-label">$0</span></span>
+        <span class="red">Costs: <span id="bar-cost-label">$0</span></span>
+        <span class="yellow">Margin: <span id="bar-margin-label">0%</span></span>
+      </div>
+    </div>
+
+    <div class="section-title">Break-Even Analysis</div>
+    <div class="grid" style="margin-bottom: 2rem;">
+      <div class="card">
+        <div class="card-label">Cost Per Summary</div>
+        <div class="card-value yellow" id="cost-per-summary">$0.000</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Profit Per Summary</div>
+        <div class="card-value green" id="profit-per-summary">$0.010</div>
+      </div>
+      <div class="card">
+        <div class="card-label">To Earn $1</div>
+        <div class="card-value blue" id="calls-to-dollar">100 calls</div>
+      </div>
+    </div>
+
+    <div class="section-title">Recent Calls</div>
+    <div style="overflow-x: auto;">
+      <table class="calls-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>URL</th>
+            <th>Revenue</th>
+            <th>Cost</th>
+            <th>Profit</th>
+          </tr>
+        </thead>
+        <tbody id="calls-body">
+          <tr><td colspan="5" style="color: #444; text-align: center; padding: 2rem;">No calls yet. Waiting for first customer...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      Built with <a href="https://fast.xyz">Fast</a> + <a href="https://skill.fast.xyz">x402</a> | 
+      <a href="/stats">JSON Stats</a> | 
+      <a href="https://github.com/Pi-Squared-Inc/minimum-viable-entity">Source</a>
+    </footer>
+  </div>
+
+  <script>
+    async function refresh() {
+      try {
+        const res = await fetch('/stats');
+        const s = await res.json();
+
+        // Status badge
+        const badge = document.getElementById('status-badge');
+        badge.textContent = s.status;
+        badge.className = 'status-badge status-' + s.status;
+
+        // Wallet
+        document.getElementById('wallet-addr').textContent = s.wallet || '--';
+        document.getElementById('wallet-balance').textContent = s.walletBalance || '--';
+        document.getElementById('uptime').textContent = s.uptime;
+
+        // Cards
+        document.getElementById('total-calls').textContent = s.calls.toLocaleString();
+        document.getElementById('total-revenue').textContent = '$' + s.revenue.toFixed(4);
+        document.getElementById('total-costs').textContent = '$' + s.costs.toFixed(4);
+        document.getElementById('total-profit').textContent = '$' + s.profit.toFixed(4);
+        document.getElementById('margin').textContent = s.margin + ' margin';
+        document.getElementById('avg-revenue').textContent = '$' + (s.avgRevenuePerCall || 0).toFixed(4) + '/call';
+        document.getElementById('avg-cost').textContent = '$' + (s.avgCostPerCall || 0).toFixed(6) + '/call';
+
+        // Profit color
+        const profitEl = document.getElementById('total-profit');
+        profitEl.className = 'card-value ' + (s.profit >= 0 ? 'green' : 'red');
+
+        // Hours calc
+        const hours = s.uptimeMs / 3600000;
+        document.getElementById('avg-per-hour').textContent = hours > 0 
+          ? (s.calls / hours).toFixed(1) + '/hour' 
+          : '0/hour';
+
+        // P&L bar
+        const maxVal = Math.max(s.revenue, s.costs, 0.001);
+        document.getElementById('bar-revenue').style.width = (s.revenue / maxVal * 100) + '%';
+        document.getElementById('bar-cost').style.width = (s.costs / maxVal * 100) + '%';
+        document.getElementById('bar-revenue-label').textContent = '$' + s.revenue.toFixed(4);
+        document.getElementById('bar-cost-label').textContent = '$' + s.costs.toFixed(4);
+        document.getElementById('bar-margin-label').textContent = s.margin;
+
+        // Break-even
+        document.getElementById('cost-per-summary').textContent = '$' + (s.avgCostPerCall || 0).toFixed(4);
+        document.getElementById('profit-per-summary').textContent = '$' + (s.avgProfitPerCall || 0.01).toFixed(4);
+        const profitPerCall = s.avgProfitPerCall || 0.01;
+        const callsTo1 = profitPerCall > 0 ? Math.ceil(1 / profitPerCall) : '---';
+        document.getElementById('calls-to-dollar').textContent = callsTo1 + ' calls';
+
+        // Recent calls table
+        const tbody = document.getElementById('calls-body');
+        if (s.recentCalls && s.recentCalls.length > 0) {
+          tbody.innerHTML = s.recentCalls.map(c => {
+            const time = new Date(c.timestamp).toLocaleTimeString();
+            const urlShort = (c.url || '').length > 50 ? c.url.slice(0, 47) + '...' : c.url;
+            return `<tr>
+              <td>${time}</td>
+              <td class="url-cell" title="${c.url}">${urlShort}</td>
+              <td class="green">+$${c.revenue.toFixed(4)}</td>
+              <td class="red">-$${c.inferenceCost.toFixed(4)}</td>
+              <td class="${c.profit >= 0 ? 'green' : 'red'}">$${c.profit.toFixed(4)}</td>
+            </tr>`;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Refresh failed:', err);
+      }
+    }
+
+    refresh();
+    setInterval(refresh, 3000);
+  </script>
+</body>
+</html>

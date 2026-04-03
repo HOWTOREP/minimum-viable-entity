@@ -1,0 +1,22 @@
+{
+  "name": "minimum-viable-entity",
+  "version": "1.0.0",
+  "description": "The Minimum Viable Autonomous Entity - an AI agent that sustains itself economically via x402 micropayments",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "facilitator": "node src/facilitator.js",
+    "dev": "node --watch src/index.js",
+    "demo:client": "node src/demo-client.js"
+  },
+  "keywords": ["x402", "fast", "autonomous-agent", "micropayments", "ai"],
+  "license": "MIT",
+  "dependencies": {
+    "@fastxyz/sdk": "latest",
+    "@fastxyz/x402-server": "latest",
+    "@fastxyz/x402-facilitator": "latest",
+    "@fastxyz/x402-client": "latest",
+    "express": "^4.21.0",
+    "cors": "^2.8.5"
+  }
+}
